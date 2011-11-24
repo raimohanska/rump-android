@@ -13,6 +13,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.util.Log;
@@ -21,24 +22,39 @@ import android.widget.Toast;
 import com.google.common.base.Joiner;
 
 public final class RumpShaker {
-	private final Context context;
+	private Context context;
 	private final RumpClient client;
-	private final Vibrator vibrator;
+	private Vibrator vibrator;
 	private final RumpCallback callback;
 	private long previousRequest = 0;
 	private GeoLocation location = new GeoLocation(0, 0);
-	private final SensorEventListener sensorListener = new ShakeEventListener();
+	private SensorManager sensorManager;
+	private LocationManager locationManager;
+  private final SensorEventListener sensorListener = new ShakeEventListener();
 	private final LocationListener locationListener = new UserLocationListener();
 
-	public RumpShaker(Context context, RumpCallback callback) {
+	public RumpShaker(RumpCallback callback) {
 		super();
-		this.context = context;
 		this.client = new RumpClient();
 		this.callback = callback;
-		this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
 
-	private void onShake() {
+  public void start(Context context) {
+    this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+		this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+    this.context = context;
+		this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+		sensorManager.registerListener(sensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+  }
+
+  public void stop() {
+		locationManager.removeUpdates(locationListener);
+		sensorManager.unregisterListener(sensorListener);
+    client.discardBackgroundTasks();
+  }
+
+  private void onShake() {
 		long now = System.currentTimeMillis();
 		if (now - previousRequest < 3000) {
 			return;
@@ -124,13 +140,5 @@ public final class RumpShaker {
 		private float sqr(float a) {
 			return a * a;
 		}
-	}
-
-	public SensorEventListener asSensorListener() {
-		return sensorListener;
-	}
-
-	public LocationListener asLocationListener() {
-		return locationListener;
 	}
 }
