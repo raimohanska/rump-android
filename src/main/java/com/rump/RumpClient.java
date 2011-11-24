@@ -31,10 +31,14 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 class RumpClient {
-	private static final String RUMP_SERVER_URL = "http://rump.demo.reaktor.fi/karma";
+  private final String serverUrl;
 	private static DefaultHttpClient httpClient;
 
 	private int pauseCount;
+
+  public RumpClient(String serverUrl) {
+    this.serverUrl = serverUrl;
+  }
 
 	public void discardBackgroundTasks() {
 		pauseCount++;
@@ -55,7 +59,7 @@ class RumpClient {
 		}
 
 		protected List<RumpInfo> post(final String url, final String requestBody) throws IOException {
-			Log.v("Rump Client", "Executing http POST with body: " + requestBody);
+			Log.v("RUMP Client", "Executing http POST with body: " + requestBody);
 			HttpPost httpPost = new HttpPost(url);
 			StringEntity entity = new StringEntity(requestBody);
 			httpPost.setEntity(entity);
@@ -69,7 +73,7 @@ class RumpClient {
 			try {
 				return method();
 			} catch (IOException e) {
-				Log.v("Karma collector", "http action failed", e);
+				Log.v("RUMP client", "http action failed", e);
 				throw new RumpCommunicationException(e);
 			}
 		}
@@ -83,7 +87,7 @@ class RumpClient {
 
 		protected List<RumpInfo> method() throws IOException {
 			try {
-				return post(RUMP_SERVER_URL, new Gson().toJson(myInfo));
+				return post(serverUrl, new Gson().toJson(myInfo));
 			} catch (Exception e) {
 				return Collections.emptyList();
 			}
@@ -103,7 +107,7 @@ class RumpClient {
 							builder.append(line);
 						}
 						String json = builder.toString();
-						Log.v("Rump Client", "Executed http " + request.getMethod() + " request. Got response: " + json);
+						Log.v("RUMP Client", "Executed http " + request.getMethod() + " request. Got response: " + json);
 						return extractor.extract(json);
 					default:
 						throw new RuntimeException("Unexpected return code :" + response.getStatusLine().getStatusCode());

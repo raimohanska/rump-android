@@ -33,9 +33,9 @@ public final class RumpShaker {
   private final SensorEventListener sensorListener = new ShakeEventListener();
 	private final LocationListener locationListener = new UserLocationListener();
 
-	public RumpShaker(RumpCallback callback) {
+	public RumpShaker(String serverUrl, RumpCallback callback) {
 		super();
-		this.client = new RumpClient();
+		this.client = new RumpClient(serverUrl);
 		this.callback = callback;
 	}
 
