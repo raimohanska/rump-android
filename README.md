@@ -35,7 +35,7 @@ Place the generated rump-android.jar on your project classpath. Then
 	public String getUsername() {
 		// TODO: return user id
 	}
-	});
+  });
 
   @Override
   protected void onResume() {
