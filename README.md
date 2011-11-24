@@ -23,7 +23,7 @@ Place the generated rump-android.jar on your project classpath. Then
 
 ~~~ .java
 
-  private final RumpShaker rumpShaker = new RumpShaker(this, new RumpCallback() {
+  private final RumpShaker rumpShaker = new RumpShaker("http://rump.demo.reaktor.fi/demo", new RumpCallback() {
     	public void connectedWith(Set<RumpInfo> dudes) {
 		// TODO: handle incoming connection
 	}
@@ -49,3 +49,5 @@ Place the generated rump-android.jar on your project classpath. Then
 
 Your responsibility then is to provide RUMP with user id and display name. 
 You implement the connectedWith method to do whatever you wish with the information on the users that were found.
+You should probably alter the server URL to be unique to your application to avoid clashing with other apps using
+the same RUMP server. You are welcome to use http://rump.demo.reaktor.fi/whateveryourappnameis though, at least for the time being.
