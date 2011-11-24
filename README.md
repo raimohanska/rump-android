@@ -19,6 +19,8 @@ A jar will come.
 Using in your Android project
 =============================
 
+Place the generated rump-android.jar on your project classpath. Then
+
 ~~~ .java
 
   private final RumpShaker rumpShaker = new RumpShaker(this, new RumpCallback() {
@@ -44,3 +46,6 @@ Using in your Android project
   	sumpShaker.stop();
   }
 ~~~
+
+Your responsibility then is to provide RUMP with user id and display name. 
+You implement the connectedWith method to do whatever you wish with the information on the users that were found.
