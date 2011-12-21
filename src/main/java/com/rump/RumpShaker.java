@@ -26,35 +26,40 @@ public final class RumpShaker {
 	private final RumpClient client;
 	private Vibrator vibrator;
 	private final RumpCallback callback;
+	private final RumpUICallback uiCallback;
 	private long previousRequest = 0;
 	private GeoLocation location = new GeoLocation(0, 0);
 	private SensorManager sensorManager;
 	private LocationManager locationManager;
-  private final SensorEventListener sensorListener = new ShakeEventListener();
+	private final SensorEventListener sensorListener = new ShakeEventListener();
 	private final LocationListener locationListener = new UserLocationListener();
 
 	public RumpShaker(String serverUrl, RumpCallback callback) {
-		super();
-		this.client = new RumpClient(serverUrl);
-		this.callback = callback;
+		this(serverUrl, callback, new DefaultUICallback());
 	}
 
-  public void start(Context context) {
-    this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
+	public RumpShaker(String serverUrl, RumpCallback callback, RumpUICallback uiCallback) {
+		this.client = new RumpClient(serverUrl);
+		this.callback = callback;
+		this.uiCallback = uiCallback;
+	}
+
+	public void start(Context context) {
+		this.sensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 		this.locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-    this.context = context;
+		this.context = context;
 		this.vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 		sensorManager.registerListener(sensorListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_UI);
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
-  }
+	}
 
-  public void stop() {
+	public void stop() {
 		locationManager.removeUpdates(locationListener);
 		sensorManager.unregisterListener(sensorListener);
-    client.discardBackgroundTasks();
-  }
+		client.discardBackgroundTasks();
+	}
 
-  private void onShake() {
+	private void onShake() {
 		long now = System.currentTimeMillis();
 		if (now - previousRequest < 3000) {
 			return;
@@ -65,12 +70,11 @@ public final class RumpShaker {
 
 	private void findCompany() {
 		vibrator.vibrate(100);
-		final Toast progress = Toast.makeText(context, "Looking for company..", Toast.LENGTH_LONG);
-		progress.show();
+		uiCallback.onRumpStart(context);
 		final RumpInfo myInfo = new RumpInfo(callback.getUsername(), callback.getDisplayName(), location);
 		client.rump(myInfo, new RumpResultHandler() {
 			public void onResponse(List<RumpInfo> dudes) {
-				progress.cancel();
+				uiCallback.onRumpEnd(context);
 				gotCompany(dudes, myInfo);
 			}
 		});
@@ -80,11 +84,11 @@ public final class RumpShaker {
 		Set<RumpInfo> uniqueUsers = newHashSet(dudes);
 		uniqueUsers.remove(me);
 		if (uniqueUsers.isEmpty()) {
-			Toast.makeText(context, "No match", Toast.LENGTH_SHORT).show();
+			uiCallback.onNoMatch(context);
 		} else {
 			int count = uniqueUsers.size();
 			longVibrations(vibrator, count);
-			Toast.makeText(context, "Found: " + Joiner.on(",").join(uniqueUsers), Toast.LENGTH_SHORT).show();
+			uiCallback.onConnect(context, uniqueUsers);
 			uniqueUsers.add(me);
 			callback.connectedWith(uniqueUsers);
 		}
@@ -140,5 +144,26 @@ public final class RumpShaker {
 		private float sqr(float a) {
 			return a * a;
 		}
+	}
+}
+
+class DefaultUICallback implements RumpUICallback {
+	private Toast progressToast;
+
+	public void onRumpStart(Context context) {
+		progressToast = Toast.makeText(context, "Looking for company..", Toast.LENGTH_LONG);
+		progressToast.show();
+	}
+
+	public void onRumpEnd(Context context) {
+		progressToast.cancel();
+	}
+
+	public void onNoMatch(Context context) {
+		Toast.makeText(context, "No match", Toast.LENGTH_SHORT).show();
+	}
+
+	public void onConnect(Context context, Set<RumpInfo> uniqueUsers) {
+		Toast.makeText(context, "Found: " + Joiner.on(",").join(uniqueUsers), Toast.LENGTH_SHORT).show();
 	}
 }
