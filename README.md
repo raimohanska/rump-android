@@ -51,3 +51,6 @@ Your responsibility then is to provide RUMP with user id and display name.
 You implement the connectedWith method to do whatever you wish with the information on the users that were found.
 You should probably alter the server URL to be unique to your application to avoid clashing with other apps using
 the same RUMP server. You are welcome to use http://rump.demo.reaktor.fi/whateveryourappnameis though, at least for the time being.
+
+When used as above, Rump client will indicate progress and results with [Toast Notifications](http://developer.android.com/guide/topics/ui/notifiers/toasts.html).
+You can also provide your own UI callback to get full control on the messages shown in the UI.
