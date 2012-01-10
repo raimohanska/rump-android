@@ -54,3 +54,30 @@ the same RUMP server. You are welcome to use http://rump.demo.reaktor.fi/whateve
 
 When used as above, Rump client will indicate progress and results with [Toast Notifications](http://developer.android.com/guide/topics/ui/notifiers/toasts.html).
 You can also provide your own UI callback to get full control on the messages shown in the UI.
+
+Using in Maven projects
+=======================
+
+~~~
+        <dependency>
+            <groupId>raimohanska</groupId>
+            <artifactId>rump-android</artifactId>
+            <version>1.0.1</version>
+        </dependency>
+~~~
+
+and
+
+~~~
+    <repositories>
+	    <repository>
+	        <id>raimohanska-releases</id>
+	        <url>https://github.com/raimohanska/raimohanska-mvn-repository/raw/master/releases</url>
+	    </repository>
+	</repositories>
+~~~
+
+Building
+========
+
+A simple Maven `pom.xml` is included for building. I deploy this jar to my own repository using `mvn deploy`.
