@@ -1,0 +1,13 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>raimohanska</groupId>
+  <artifactId>rump-android</artifactId>
+  <version>1.0.1</version>
+  <distributionManagement>
+    <repository>
+      <id>raimohanska</id>
+      <name>raimohanska</name>
+      <url>file:///Users/jpaanane/reaktor/raimohanska-mvn-repo/releases</url>
+    </repository>
+  </distributionManagement>
+</project>
